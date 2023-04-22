@@ -1,53 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SGBD_Jocuri_DB
 {
     public partial class Form1 : Form
     {
-        private readonly string connectionString =
-            "Data Source=GABI\\SQLEXPRESS;Initial Catalog=MAGAZIN_DE_JOCURI; Integrated Security=True";
         private SqlConnection sqlConnection;
         private SqlDataAdapter adapter;
         private DataSet ds;
         private DataSet combosDs;
+        
+        private readonly string connectionString = ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString;
+        private string parentTable;
+        private string childTable;
 
         public Form1()
         {
+            ReadConfigFile();
             InitializeComponent();
-            InitializeDevsGrid();
-            InitializeGamesGrid();
+            InitializeParentGrid();
+            InitializeChildGrid();
             CreateConnection();
             InitializeData();
             InitializeComboBoxes();
         }
 
-        private void InitializeDevsGrid()
+        private void ReadConfigFile()
         {
-            devsDataGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            devsDataGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            devsDataGrid.MultiSelect = false;
-            devsDataGrid.RowHeadersVisible = false;
-            devsDataGrid.AllowUserToResizeRows = false;
-            devsDataGrid.ClearSelection();
+            parentTable = ConfigurationManager.AppSettings["ParentTable"];
+            childTable = ConfigurationManager.AppSettings["ChildTable"];
         }
 
-        private void InitializeGamesGrid()
+        private void InitializeParentGrid()
         {
-            gamesDataGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            gamesDataGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            gamesDataGrid.MultiSelect = false;
-            gamesDataGrid.RowHeadersVisible = false;
-            gamesDataGrid.AllowUserToResizeRows = false;
-            gamesDataGrid.ClearSelection();
+            parentDataGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            parentDataGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            parentDataGrid.MultiSelect = false;
+            parentDataGrid.RowHeadersVisible = false;
+            parentDataGrid.AllowUserToResizeRows = false;
+            parentDataGrid.ClearSelection();
+        }
+
+        private void InitializeChildGrid()
+        {
+            childDataGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            childDataGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            childDataGrid.MultiSelect = false;
+            childDataGrid.RowHeadersVisible = false;
+            childDataGrid.AllowUserToResizeRows = false;
+            childDataGrid.ClearSelection();
         }
 
         private void InitializeComboBoxes()
@@ -84,28 +89,21 @@ namespace SGBD_Jocuri_DB
             adapter = new SqlDataAdapter();
             ds = new DataSet();
 
-            ds.Tables.Add("DEZVOLTATORI");
-            ds.Tables.Add("JOCURI");
-
-/*            DataRelation dataRelation = new DataRelation(
-                "FK_JOCURI_Did",
-                ds.Tables["DEZVOLTATORI"].Columns["Did"],
-                ds.Tables["JOCURI"].Columns["Did"]
-            );
-            ds.Relations.Add(dataRelation);*/
+            ds.Tables.Add(parentTable);
+            ds.Tables.Add(childTable);
 
             ReloadParentData();
             
-            devsDataGrid.DataSource = ds.Tables["DEZVOLTATORI"];
-            gamesDataGrid.DataSource = ds.Tables["JOCURI"];
+            parentDataGrid.DataSource = ds.Tables[parentTable];
+            childDataGrid.DataSource = ds.Tables[childTable];
         }
 
         private void ReloadParentData()
         {
             ClearFields();
-            adapter.SelectCommand = new SqlCommand("SELECT * FROM DEZVOLTATORI", sqlConnection);
+            adapter.SelectCommand = new SqlCommand("SELECT * FROM " + parentTable, sqlConnection);
             ds.Clear();
-            adapter.Fill(ds, "DEZVOLTATORI");
+            adapter.Fill(ds, parentTable);
         }
 
         private void CreateConnection()
@@ -118,30 +116,36 @@ namespace SGBD_Jocuri_DB
             ReloadParentData();
         }
 
-        private void DevsDataGrid_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        /////////////////////////////// <TODO>
+        private void ParentDataGrid_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-            int devId = (int) devsDataGrid.SelectedRows[0].Cells[0].Value;
-            devIdField.Text = devId.ToString();
-            ReloadChildData(devId);
+            int parentId = (int) parentDataGrid.SelectedRows[0].Cells[0].Value;
+            devIdField.Text = parentId.ToString(); //////
+            ReloadChildData(parentId);
         }
 
-        private void ReloadChildData(int devId)
+        private void ReloadChildData(int parentId)
         {
-            adapter.SelectCommand = new SqlCommand("SELECT * FROM JOCURI WHERE Did=@devId", sqlConnection);
-            adapter.SelectCommand.Parameters.Add("@devId", SqlDbType.Int).Value = devId;
-            ds.Tables["JOCURI"].Clear();
-            adapter.Fill(ds, "JOCURI");
+            string command = "SELECT * FROM " + childTable + " WHERE " + 
+                ConfigurationManager.AppSettings["ParentPKColumn"] + "=@parentId";
+
+            adapter.SelectCommand = new SqlCommand(command, sqlConnection);
+            adapter.SelectCommand.Parameters.Add("@parentId", SqlDbType.Int).Value = parentId;
+
+            ds.Tables[childTable].Clear();
+            adapter.Fill(ds, childTable);
         }
 
+        /////////////////////////////// <TODO>
         private void GamesDataGrid_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-            string gameName = (string)gamesDataGrid.SelectedRows[0].Cells[1].Value;
-            string playerNum = (string)gamesDataGrid.SelectedRows[0].Cells[2].Value;
-            string status = (string)gamesDataGrid.SelectedRows[0].Cells[3].Value;
-            DateTime date = (DateTime)gamesDataGrid.SelectedRows[0].Cells[4].Value;
-            string category = gamesDataGrid.SelectedRows[0].Cells[6].Value.ToString();
-            string age = gamesDataGrid.SelectedRows[0].Cells[7].Value.ToString();
-            string did = gamesDataGrid.SelectedRows[0].Cells[5].Value.ToString();
+            string gameName = (string)childDataGrid.SelectedRows[0].Cells[1].Value;
+            string playerNum = (string)childDataGrid.SelectedRows[0].Cells[2].Value;
+            string status = (string)childDataGrid.SelectedRows[0].Cells[3].Value;
+            DateTime date = (DateTime)childDataGrid.SelectedRows[0].Cells[4].Value;
+            string category = childDataGrid.SelectedRows[0].Cells[6].Value.ToString();
+            string age = childDataGrid.SelectedRows[0].Cells[7].Value.ToString();
+            string did = childDataGrid.SelectedRows[0].Cells[5].Value.ToString();
 
             nameField.Text = gameName;
             playerNumField.Text = playerNum;
@@ -152,9 +156,10 @@ namespace SGBD_Jocuri_DB
             devIdField.Text = did;
         }
 
+        /////////////////////////////// <TODO>
         private void UpdateBtn_Click(object sender, EventArgs e)
         {
-            int jid = (int)gamesDataGrid.SelectedRows[0].Cells[0].Value;
+            int jid = (int)childDataGrid.SelectedRows[0].Cells[0].Value;
             string name = nameField.Text;
             string playerNum = playerNumField.Text;
             string status = statusCombo.Text;
@@ -188,7 +193,7 @@ namespace SGBD_Jocuri_DB
                 {
                     MessageBox.Show("Joc actualizat cu succes.");
                     ClearFields();
-                    ReloadChildData((int)devsDataGrid.SelectedRows[0].Cells[0].Value);
+                    ReloadChildData((int)parentDataGrid.SelectedRows[0].Cells[0].Value);
                 }
             } 
             catch (Exception ex)
@@ -197,14 +202,14 @@ namespace SGBD_Jocuri_DB
                 sqlConnection.Close();
             }
 }
-
+        /////////////////////////////// <TODO>
         private void AddBtn_Click(object sender, EventArgs e)
         {
             string name = nameField.Text;
             string playerNum = playerNumField.Text;
             string status = statusCombo.Text;
             DateTime date = datePicker.Value;
-            int did = (int)devsDataGrid.SelectedRows[0].Cells[0].Value;
+            int did = (int)parentDataGrid.SelectedRows[0].Cells[0].Value;
             int cid = int.Parse(categoryCombo.Text.Split(' ')[0]);
             int rvid = int.Parse(ageRatingCombo.Text.Split(' ')[0]);
 
@@ -228,7 +233,7 @@ namespace SGBD_Jocuri_DB
                 {
                     MessageBox.Show("Joc adaugat cu succes.");
                     ClearFields();
-                    ReloadChildData((int)devsDataGrid.SelectedRows[0].Cells[0].Value);
+                    ReloadChildData((int)parentDataGrid.SelectedRows[0].Cells[0].Value);
                 }
             } 
             catch (Exception ex) 
@@ -240,11 +245,13 @@ namespace SGBD_Jocuri_DB
 
         private void DeleteBtn_Click(object sender, EventArgs e)
         {
-            int jid = (int)gamesDataGrid.SelectedRows[0].Cells[0].Value;
+            int childId = (int)childDataGrid.SelectedRows[0].Cells[0].Value;
 
-            adapter.DeleteCommand = new SqlCommand("DELETE FROM JOCURI WHERE Jid=@jid", sqlConnection);
-            
-            adapter.DeleteCommand.Parameters.Add("@jid", SqlDbType.Int).Value = jid;
+            string command = "DELETE FROM " + childTable + " WHERE " +
+                ConfigurationManager.AppSettings["ChildPKColumn"] + "=@childId";
+
+            adapter.DeleteCommand = new SqlCommand(command, sqlConnection);
+            adapter.DeleteCommand.Parameters.Add("@childId", SqlDbType.Int).Value = childId;
 
             try
             {
@@ -256,7 +263,7 @@ namespace SGBD_Jocuri_DB
                 {
                     MessageBox.Show("Joc sters cu succes.");
                     ClearFields();
-                    ReloadChildData((int)devsDataGrid.SelectedRows[0].Cells[0].Value);
+                    ReloadChildData((int)parentDataGrid.SelectedRows[0].Cells[0].Value);
                 }
             } 
             catch (Exception ex) 
@@ -266,6 +273,7 @@ namespace SGBD_Jocuri_DB
             }
         }
 
+        /////////////////////////////// <TODO>
         private void ClearFields()
         {
             nameField.Clear();
@@ -273,8 +281,8 @@ namespace SGBD_Jocuri_DB
             statusCombo.Text = string.Empty;
             categoryCombo.Text = string.Empty;
             ageRatingCombo.Text = string.Empty;
-            if (devsDataGrid.SelectedRows.Count != 0)
-                devIdField.Text = devsDataGrid.SelectedRows[0].Cells[0].Value.ToString();
+            if (parentDataGrid.SelectedRows.Count != 0)
+                devIdField.Text = parentDataGrid.SelectedRows[0].Cells[0].Value.ToString();
         }
     }
 }

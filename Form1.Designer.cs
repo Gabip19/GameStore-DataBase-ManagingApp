@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.devsDataGrid = new System.Windows.Forms.DataGridView();
-            this.gamesDataGrid = new System.Windows.Forms.DataGridView();
+            this.parentDataGrid = new System.Windows.Forms.DataGridView();
+            this.childDataGrid = new System.Windows.Forms.DataGridView();
             this.button1 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -51,35 +51,35 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.devsDataGrid)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gamesDataGrid)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.parentDataGrid)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.childDataGrid)).BeginInit();
             this.SuspendLayout();
             // 
             // devsDataGrid
             // 
-            this.devsDataGrid.AllowUserToAddRows = false;
-            this.devsDataGrid.AllowUserToDeleteRows = false;
-            this.devsDataGrid.BackgroundColor = System.Drawing.Color.White;
-            this.devsDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.devsDataGrid.Location = new System.Drawing.Point(13, 55);
-            this.devsDataGrid.Name = "devsDataGrid";
-            this.devsDataGrid.ReadOnly = true;
-            this.devsDataGrid.Size = new System.Drawing.Size(417, 637);
-            this.devsDataGrid.TabIndex = 0;
-            this.devsDataGrid.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DevsDataGrid_CellMouseClick);
+            this.parentDataGrid.AllowUserToAddRows = false;
+            this.parentDataGrid.AllowUserToDeleteRows = false;
+            this.parentDataGrid.BackgroundColor = System.Drawing.Color.White;
+            this.parentDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.parentDataGrid.Location = new System.Drawing.Point(13, 55);
+            this.parentDataGrid.Name = "devsDataGrid";
+            this.parentDataGrid.ReadOnly = true;
+            this.parentDataGrid.Size = new System.Drawing.Size(417, 637);
+            this.parentDataGrid.TabIndex = 0;
+            this.parentDataGrid.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.ParentDataGrid_CellMouseClick);
             // 
             // gamesDataGrid
             // 
-            this.gamesDataGrid.AllowUserToAddRows = false;
-            this.gamesDataGrid.AllowUserToDeleteRows = false;
-            this.gamesDataGrid.BackgroundColor = System.Drawing.Color.White;
-            this.gamesDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.gamesDataGrid.Location = new System.Drawing.Point(900, 55);
-            this.gamesDataGrid.Name = "gamesDataGrid";
-            this.gamesDataGrid.ReadOnly = true;
-            this.gamesDataGrid.Size = new System.Drawing.Size(417, 637);
-            this.gamesDataGrid.TabIndex = 1;
-            this.gamesDataGrid.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.GamesDataGrid_CellMouseClick);
+            this.childDataGrid.AllowUserToAddRows = false;
+            this.childDataGrid.AllowUserToDeleteRows = false;
+            this.childDataGrid.BackgroundColor = System.Drawing.Color.White;
+            this.childDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.childDataGrid.Location = new System.Drawing.Point(900, 55);
+            this.childDataGrid.Name = "gamesDataGrid";
+            this.childDataGrid.ReadOnly = true;
+            this.childDataGrid.Size = new System.Drawing.Size(417, 637);
+            this.childDataGrid.TabIndex = 1;
+            this.childDataGrid.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.GamesDataGrid_CellMouseClick);
             // 
             // button1
             // 
@@ -311,12 +311,12 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button1);
-            this.Controls.Add(this.gamesDataGrid);
-            this.Controls.Add(this.devsDataGrid);
+            this.Controls.Add(this.childDataGrid);
+            this.Controls.Add(this.parentDataGrid);
             this.Name = "Form1";
             this.Text = "Form1";
-            ((System.ComponentModel.ISupportInitialize)(this.devsDataGrid)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gamesDataGrid)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.parentDataGrid)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.childDataGrid)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -324,8 +324,8 @@
 
         #endregion
 
-        private System.Windows.Forms.DataGridView devsDataGrid;
-        private System.Windows.Forms.DataGridView gamesDataGrid;
+        private System.Windows.Forms.DataGridView parentDataGrid;
+        private System.Windows.Forms.DataGridView childDataGrid;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
