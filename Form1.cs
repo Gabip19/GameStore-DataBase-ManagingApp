@@ -27,6 +27,7 @@ namespace SGBD_Jocuri_DB
             InitializeComponent();
             InitializeParentGrid();
             InitializeChildGrid();
+            InitializeNameLabels();
             InitializeInputPanel();
             CreateConnection();
             InitializeData();
@@ -89,6 +90,13 @@ namespace SGBD_Jocuri_DB
                 inputPanel.Controls.Add(textBox);
                 textboxpoint = new Point(textboxpoint.X, textboxpoint.Y + 45);
             }
+        }
+
+        private void InitializeNameLabels()
+        {
+            parentNameLabel.Text = parentTable;
+            childNameLabel.Text = childTable;
+            childDataLabel.Text = "Date instanta " + childTable;
         }
 
         /////////////////////////////// <TODO>
