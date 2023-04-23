@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.Text;
 using System.Windows.Forms;
 
 namespace SGBD_Jocuri_DB
@@ -184,35 +185,31 @@ namespace SGBD_Jocuri_DB
             }
         }
 
-        /////////////////////////////// <TODO>
         private void UpdateBtn_Click(object sender, EventArgs e)
         {
-            /*int jid = (int)childDataGrid.SelectedRows[0].Cells[0].Value;
-            string name = nameField.Text;
-            string playerNum = playerNumField.Text;
-            string status = statusCombo.Text;
-            DateTime date = datePicker.Value;
-            int did = int.Parse(devIdField.Text);
-            int cid = int.Parse(categoryCombo.Text.Split(' ')[0]);
-            int rvid = int.Parse(ageRatingCombo.Text.Split(' ')[0]);
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE " + childTable + " SET ");
 
-            adapter.UpdateCommand = 
-                new SqlCommand("UPDATE JOCURI SET " +
-                "nume=@n, nr_jucatori=@pn, " +
-                "status_online=@s, data_aparitie=@d, " +
-                "Did=@did, Cid=@cid, Rvid=@rvid " +
-                "WHERE Jid=@jid", sqlConnection);
+            foreach (string column in childColumns)
+            {
+                sb.Append(column + "=@" + column + ", ");
+            }
+            sb.Remove(sb.Length - 2, 2);
+            sb.Append(" WHERE ");
+            sb.Append(ConfigurationManager.AppSettings["ChildPKColumn"] + "=@childId");
 
-            adapter.UpdateCommand.Parameters.Add("@n", SqlDbType.VarChar).Value = name;
-            adapter.UpdateCommand.Parameters.Add("@pn", SqlDbType.VarChar).Value = playerNum;
-            adapter.UpdateCommand.Parameters.Add("@s", SqlDbType.VarChar).Value = status;
-            adapter.UpdateCommand.Parameters.Add("@d", SqlDbType.Date).Value = date;
-            adapter.UpdateCommand.Parameters.Add("@did", SqlDbType.Int).Value = did;
-            adapter.UpdateCommand.Parameters.Add("@cid", SqlDbType.Int).Value = cid;
-            adapter.UpdateCommand.Parameters.Add("@rvid", SqlDbType.Int).Value = rvid;
-            adapter.UpdateCommand.Parameters.Add("@jid", SqlDbType.Int).Value = jid;
+            adapter.UpdateCommand = new SqlCommand(sb.ToString(), sqlConnection);
 
-            try {
+            foreach (string column in childColumns)
+            {
+                TextBox textBox = (TextBox)inputPanel.Controls[column + "TextBox"];
+                adapter.UpdateCommand.Parameters.AddWithValue("@" + column, textBox.Text);
+            }
+            int childId = (int)childDataGrid.SelectedRows[0].Cells[0].Value;
+            adapter.UpdateCommand.Parameters.AddWithValue("@childId", childId);
+
+            try
+            {
                 sqlConnection.Open();
                 int x = adapter.UpdateCommand.ExecuteNonQuery();
                 sqlConnection.Close();
@@ -228,32 +225,31 @@ namespace SGBD_Jocuri_DB
             {
                 MessageBox.Show(ex.Message);
                 sqlConnection.Close();
-            }*/
+            }
         }
 
-        /////////////////////////////// <TODO>
         private void AddBtn_Click(object sender, EventArgs e)
         {
-            /*string name = nameField.Text;
-            string playerNum = playerNumField.Text;
-            string status = statusCombo.Text;
-            DateTime date = datePicker.Value;
-            int did = (int)parentDataGrid.SelectedRows[0].Cells[0].Value;
-            int cid = int.Parse(categoryCombo.Text.Split(' ')[0]);
-            int rvid = int.Parse(ageRatingCombo.Text.Split(' ')[0]);
+            StringBuilder sb = new StringBuilder();
+            sb.Append("INSERT INTO " + childTable + " VALUES (");
 
-            adapter.InsertCommand =
-                new SqlCommand("INSERT INTO JOCURI VALUES (@n, @pn, @s, @d, @did, @cid, @rvid)", sqlConnection);
+            foreach (string column in childColumns)
+            {
+                sb.Append("@" + column + ", ");
+            }
+            sb.Remove(sb.Length - 2, 2);
+            sb.Append(")");
 
-            adapter.InsertCommand.Parameters.Add("@pn", SqlDbType.VarChar).Value = playerNum;
-            adapter.InsertCommand.Parameters.Add("@s", SqlDbType.VarChar).Value = status;
-            adapter.InsertCommand.Parameters.Add("@d", SqlDbType.Date).Value = date;
-            adapter.InsertCommand.Parameters.Add("@n", SqlDbType.VarChar).Value = name;
-            adapter.InsertCommand.Parameters.Add("@did", SqlDbType.Int).Value = did;
-            adapter.InsertCommand.Parameters.Add("@cid", SqlDbType.Int).Value = cid;
-            adapter.InsertCommand.Parameters.Add("@rvid", SqlDbType.Int).Value = rvid;
+            adapter.InsertCommand = new SqlCommand(sb.ToString(), sqlConnection);
 
-            try {
+            foreach (string column in childColumns)
+            {
+                TextBox textBox = (TextBox)inputPanel.Controls[column + "TextBox"];
+                adapter.InsertCommand.Parameters.AddWithValue("@" + column, textBox.Text);
+            }
+
+            try
+            {
                 sqlConnection.Open();
                 int x = adapter.InsertCommand.ExecuteNonQuery();
                 sqlConnection.Close();
@@ -264,12 +260,12 @@ namespace SGBD_Jocuri_DB
                     ClearFields();
                     ReloadChildData((int)parentDataGrid.SelectedRows[0].Cells[0].Value);
                 }
-            } 
-            catch (Exception ex) 
+            }
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
                 sqlConnection.Close();
-            }*/
+            }
         }
 
         private void DeleteBtn_Click(object sender, EventArgs e)
@@ -302,16 +298,13 @@ namespace SGBD_Jocuri_DB
             }
         }
 
-        /////////////////////////////// <TODO>
         private void ClearFields()
         {
-            /*nameField.Clear();
-            playerNumField.Clear();
-            statusCombo.Text = string.Empty;
-            categoryCombo.Text = string.Empty;
-            ageRatingCombo.Text = string.Empty;
-            if (parentDataGrid.SelectedRows.Count != 0)
-                devIdField.Text = parentDataGrid.SelectedRows[0].Cells[0].Value.ToString();*/
+            foreach (string column in childColumns)
+            {
+                TextBox textBox = (TextBox)inputPanel.Controls[column + "TextBox"];
+                textBox.Clear();
+            }
         }
     }
 }
