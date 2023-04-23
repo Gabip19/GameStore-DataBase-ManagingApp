@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace SGBD_Jocuri_DB
@@ -17,6 +18,7 @@ namespace SGBD_Jocuri_DB
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString;
         private string parentTable;
         private string childTable;
+        private List<string> childColumns;
 
         public Form1()
         {
@@ -24,6 +26,7 @@ namespace SGBD_Jocuri_DB
             InitializeComponent();
             InitializeParentGrid();
             InitializeChildGrid();
+            InitializeInputPanel();
             CreateConnection();
             InitializeData();
             InitializeComboBoxes();
@@ -33,6 +36,8 @@ namespace SGBD_Jocuri_DB
         {
             parentTable = ConfigurationManager.AppSettings["ParentTable"];
             childTable = ConfigurationManager.AppSettings["ChildTable"];
+            childColumns = new List<string>(ConfigurationManager.AppSettings["ChildColumnNames"].Split(','));
+            childColumns.Remove(ConfigurationManager.AppSettings["ChildPKColumn"]);
         }
 
         private void InitializeParentGrid()
@@ -55,9 +60,40 @@ namespace SGBD_Jocuri_DB
             childDataGrid.ClearSelection();
         }
 
+        private void InitializeInputPanel()
+        {
+            Point labelpoint = new Point(6, 38);
+            Point textboxpoint = new Point(130, 40);
+
+            foreach (string column in childColumns)
+            {
+                Label label = new Label
+                {
+                    Text = column,
+                    Name = column + "Label",
+                    Font = new Font("Microsoft Sans Serif", 15f),
+                    Size = new Size(110, 35),
+                    Location = labelpoint
+                };
+                inputPanel.Controls.Add(label);
+                labelpoint = new Point(labelpoint.X, labelpoint.Y + 45);
+
+                TextBox textBox = new TextBox
+                {
+                    Name = column + "TextBox",
+                    Font = new Font("Microsoft Sans Serif", 15f),
+                    Size = new Size(245, 35),
+                    Location = textboxpoint
+                };
+                inputPanel.Controls.Add(textBox);
+                textboxpoint = new Point(textboxpoint.X, textboxpoint.Y + 45);
+            }
+        }
+
+        /////////////////////////////// <TODO>
         private void InitializeComboBoxes()
         {
-            combosDs = new DataSet();
+            /*combosDs = new DataSet();
             
 
             List<string> statusList = new List<string>() { "online", "online/offline", "offline" };
@@ -81,7 +117,7 @@ namespace SGBD_Jocuri_DB
             {
                 ageRestrictionsList.Add(el["Rvid"] + " " + el["rating_varsta"]);
             }
-            ageRatingCombo.DataSource = ageRestrictionsList;
+            ageRatingCombo.DataSource = ageRestrictionsList;*/
         }
 
         private void InitializeData()
@@ -116,11 +152,11 @@ namespace SGBD_Jocuri_DB
             ReloadParentData();
         }
 
-        /////////////////////////////// <TODO>
         private void ParentDataGrid_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
             int parentId = (int) parentDataGrid.SelectedRows[0].Cells[0].Value;
-            devIdField.Text = parentId.ToString(); //////
+            TextBox parentIdTextBox = (TextBox)inputPanel.Controls[ConfigurationManager.AppSettings["ParentPKColumn"] + "TextBox"];
+            parentIdTextBox.Text = parentId.ToString();
             ReloadChildData(parentId);
         }
 
@@ -136,30 +172,22 @@ namespace SGBD_Jocuri_DB
             adapter.Fill(ds, childTable);
         }
 
-        /////////////////////////////// <TODO>
         private void GamesDataGrid_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-            string gameName = (string)childDataGrid.SelectedRows[0].Cells[1].Value;
-            string playerNum = (string)childDataGrid.SelectedRows[0].Cells[2].Value;
-            string status = (string)childDataGrid.SelectedRows[0].Cells[3].Value;
-            DateTime date = (DateTime)childDataGrid.SelectedRows[0].Cells[4].Value;
-            string category = childDataGrid.SelectedRows[0].Cells[6].Value.ToString();
-            string age = childDataGrid.SelectedRows[0].Cells[7].Value.ToString();
-            string did = childDataGrid.SelectedRows[0].Cells[5].Value.ToString();
-
-            nameField.Text = gameName;
-            playerNumField.Text = playerNum;
-            statusCombo.Text = status;
-            datePicker.Value = date;
-            categoryCombo.Text = category;
-            ageRatingCombo.Text = age;
-            devIdField.Text = did;
+            var selectedRow = childDataGrid.SelectedRows[0];
+            int index = 1;
+            foreach (var column in childColumns)
+            {
+                TextBox textBox = (TextBox)inputPanel.Controls[column + "TextBox"];
+                textBox.Text = selectedRow.Cells[index].Value.ToString();
+                index++;
+            }
         }
 
         /////////////////////////////// <TODO>
         private void UpdateBtn_Click(object sender, EventArgs e)
         {
-            int jid = (int)childDataGrid.SelectedRows[0].Cells[0].Value;
+            /*int jid = (int)childDataGrid.SelectedRows[0].Cells[0].Value;
             string name = nameField.Text;
             string playerNum = playerNumField.Text;
             string status = statusCombo.Text;
@@ -200,12 +228,13 @@ namespace SGBD_Jocuri_DB
             {
                 MessageBox.Show(ex.Message);
                 sqlConnection.Close();
-            }
-}
+            }*/
+        }
+
         /////////////////////////////// <TODO>
         private void AddBtn_Click(object sender, EventArgs e)
         {
-            string name = nameField.Text;
+            /*string name = nameField.Text;
             string playerNum = playerNumField.Text;
             string status = statusCombo.Text;
             DateTime date = datePicker.Value;
@@ -240,8 +269,8 @@ namespace SGBD_Jocuri_DB
             {
                 MessageBox.Show(ex.Message);
                 sqlConnection.Close();
-            }
-}
+            }*/
+        }
 
         private void DeleteBtn_Click(object sender, EventArgs e)
         {
@@ -276,13 +305,13 @@ namespace SGBD_Jocuri_DB
         /////////////////////////////// <TODO>
         private void ClearFields()
         {
-            nameField.Clear();
+            /*nameField.Clear();
             playerNumField.Clear();
             statusCombo.Text = string.Empty;
             categoryCombo.Text = string.Empty;
             ageRatingCombo.Text = string.Empty;
             if (parentDataGrid.SelectedRows.Count != 0)
-                devIdField.Text = parentDataGrid.SelectedRows[0].Cells[0].Value.ToString();
+                devIdField.Text = parentDataGrid.SelectedRows[0].Cells[0].Value.ToString();*/
         }
     }
 }
