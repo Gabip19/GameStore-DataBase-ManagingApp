@@ -15,6 +15,7 @@ namespace SGBD_Jocuri_DB
     {
         private readonly string connectionString =
             "Data Source=GABI\\SQLEXPRESS;Initial Catalog=MAGAZIN_DE_JOCURI; Integrated Security=True";
+            // MODIFICA
         private SqlConnection sqlConnection;
         private SqlDataAdapter adapter;
         private DataSet ds;
@@ -53,11 +54,13 @@ namespace SGBD_Jocuri_DB
             adapter = new SqlDataAdapter();
             ds = new DataSet();
 
+            // MODIFICA
             ds.Tables.Add("DEZVOLTATORI");
             ds.Tables.Add("JOCURI");
 
             ReloadParentData();
-            
+
+            // MODIFICA
             parentDataGrid.DataSource = ds.Tables["DEZVOLTATORI"];
             childDataGrid.DataSource = ds.Tables["JOCURI"];
         }
@@ -65,8 +68,10 @@ namespace SGBD_Jocuri_DB
         private void ReloadParentData()
         {
             ClearFields();
+            // MODIFICA
             adapter.SelectCommand = new SqlCommand("SELECT * FROM DEZVOLTATORI", sqlConnection);
             ds.Clear();
+            // MODIFICA
             adapter.Fill(ds, "DEZVOLTATORI");
         }
 
@@ -83,12 +88,14 @@ namespace SGBD_Jocuri_DB
         private void ParentDataGrid_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
             int parentId = (int) parentDataGrid.SelectedRows[0].Cells[0].Value;
+            // MODIFICA
             devIdField.Text = parentId.ToString();
             ReloadChildData(parentId);
         }
         
         private void ReloadChildData(int parentId)
         {
+            // MODIFICA
             adapter.SelectCommand = new SqlCommand("SELECT * FROM JOCURI WHERE Did=@devId", sqlConnection);
             adapter.SelectCommand.Parameters.Add("@devId", SqlDbType.Int).Value = parentId;
             ds.Tables["JOCURI"].Clear();
@@ -97,6 +104,7 @@ namespace SGBD_Jocuri_DB
 
         private void ChildDataGrid_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
+            // MODIFICA
             string gameName = (string)childDataGrid.SelectedRows[0].Cells[1].Value;
             string playerNum = (string)childDataGrid.SelectedRows[0].Cells[2].Value;
             string status = (string)childDataGrid.SelectedRows[0].Cells[3].Value;
@@ -116,6 +124,7 @@ namespace SGBD_Jocuri_DB
 
         private void UpdateBtn_Click(object sender, EventArgs e)
         {
+            // MODIFICA
             int jid = (int)childDataGrid.SelectedRows[0].Cells[0].Value;
             string name = nameField.Text;
             string playerNum = playerNumField.Text;
@@ -125,6 +134,7 @@ namespace SGBD_Jocuri_DB
             int cid = int.Parse(categoryCombo.Text.Split(' ')[0]);
             int rvid = int.Parse(ageRatingCombo.Text.Split(' ')[0]);
 
+            // MODIFICA
             adapter.UpdateCommand = 
                 new SqlCommand("UPDATE JOCURI SET " +
                 "nume=@n, nr_jucatori=@pn, " +
@@ -132,6 +142,7 @@ namespace SGBD_Jocuri_DB
                 "Did=@did, Cid=@cid, Rvid=@rvid " +
                 "WHERE Jid=@jid", sqlConnection);
 
+            // MODIFICA
             adapter.UpdateCommand.Parameters.Add("@n", SqlDbType.VarChar).Value = name;
             adapter.UpdateCommand.Parameters.Add("@pn", SqlDbType.VarChar).Value = playerNum;
             adapter.UpdateCommand.Parameters.Add("@s", SqlDbType.VarChar).Value = status;
@@ -148,6 +159,7 @@ namespace SGBD_Jocuri_DB
             
                 if (x >= 1)
                 {
+                    // MODIFICA
                     MessageBox.Show("Joc actualizat cu succes.");
                     ClearFields();
                     ReloadChildData((int)parentDataGrid.SelectedRows[0].Cells[0].Value);
@@ -162,6 +174,7 @@ namespace SGBD_Jocuri_DB
 
         private void AddBtn_Click(object sender, EventArgs e)
         {
+            // MODIFICA
             string name = nameField.Text;
             string playerNum = playerNumField.Text;
             string status = statusCombo.Text;
@@ -170,9 +183,11 @@ namespace SGBD_Jocuri_DB
             int cid = int.Parse(categoryCombo.Text.Split(' ')[0]);
             int rvid = int.Parse(ageRatingCombo.Text.Split(' ')[0]);
 
+            // MODIFICA
             adapter.InsertCommand =
                 new SqlCommand("INSERT INTO JOCURI VALUES (@n, @pn, @s, @d, @did, @cid, @rvid)", sqlConnection);
 
+            // MODIFICA
             adapter.InsertCommand.Parameters.Add("@pn", SqlDbType.VarChar).Value = playerNum;
             adapter.InsertCommand.Parameters.Add("@s", SqlDbType.VarChar).Value = status;
             adapter.InsertCommand.Parameters.Add("@d", SqlDbType.Date).Value = date;
@@ -188,6 +203,7 @@ namespace SGBD_Jocuri_DB
 
                 if (x >= 1)
                 {
+                    // MODIFICA
                     MessageBox.Show("Joc adaugat cu succes.");
                     ClearFields();
                     ReloadChildData((int)parentDataGrid.SelectedRows[0].Cells[0].Value);
@@ -202,10 +218,11 @@ namespace SGBD_Jocuri_DB
 
         private void DeleteBtn_Click(object sender, EventArgs e)
         {
+            // MODIFICA
             int jid = (int)childDataGrid.SelectedRows[0].Cells[0].Value;
-
+            // MODIFICA
             adapter.DeleteCommand = new SqlCommand("DELETE FROM JOCURI WHERE Jid=@jid", sqlConnection);
-            
+            // MODIFICA
             adapter.DeleteCommand.Parameters.Add("@jid", SqlDbType.Int).Value = jid;
 
             try
@@ -216,6 +233,7 @@ namespace SGBD_Jocuri_DB
 
                 if (x >= 1)
                 {
+                    // MODIFICA
                     MessageBox.Show("Joc sters cu succes.");
                     ClearFields();
                     ReloadChildData((int)parentDataGrid.SelectedRows[0].Cells[0].Value);
@@ -230,6 +248,7 @@ namespace SGBD_Jocuri_DB
 
         private void ClearFields()
         {
+            // MODIFICA
             nameField.Clear();
             playerNumField.Clear();
             statusCombo.Text = string.Empty;
