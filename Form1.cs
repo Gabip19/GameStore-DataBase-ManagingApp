@@ -18,65 +18,34 @@ namespace SGBD_Jocuri_DB
         private SqlConnection sqlConnection;
         private SqlDataAdapter adapter;
         private DataSet ds;
-        private DataSet combosDs;
 
         public Form1()
         {
             InitializeComponent();
-            InitializeDevsGrid();
-            InitializeGamesGrid();
+            InitializeParentGrid();
+            InitializeChildGrid();
             CreateConnection();
             InitializeData();
-            InitializeComboBoxes();
         }
 
-        private void InitializeDevsGrid()
+        private void InitializeParentGrid()
         {
-            devsDataGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            devsDataGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            devsDataGrid.MultiSelect = false;
-            devsDataGrid.RowHeadersVisible = false;
-            devsDataGrid.AllowUserToResizeRows = false;
-            devsDataGrid.ClearSelection();
+            parentDataGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            parentDataGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            parentDataGrid.MultiSelect = false;
+            parentDataGrid.RowHeadersVisible = false;
+            parentDataGrid.AllowUserToResizeRows = false;
+            parentDataGrid.ClearSelection();
         }
 
-        private void InitializeGamesGrid()
+        private void InitializeChildGrid()
         {
-            gamesDataGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            gamesDataGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            gamesDataGrid.MultiSelect = false;
-            gamesDataGrid.RowHeadersVisible = false;
-            gamesDataGrid.AllowUserToResizeRows = false;
-            gamesDataGrid.ClearSelection();
-        }
-
-        private void InitializeComboBoxes()
-        {
-            combosDs = new DataSet();
-            
-
-            List<string> statusList = new List<string>() { "online", "online/offline", "offline" };
-            statusCombo.DataSource = statusList;
-
-
-            adapter.SelectCommand = new SqlCommand("SELECT * FROM CATEGORII", sqlConnection);
-            adapter.Fill(combosDs, "CATEGORII");
-            List<string> categoryList = new List<string>();
-            foreach (DataRow el in combosDs.Tables["CATEGORII"].Rows)
-            {
-                categoryList.Add(el["Cid"] + " " + el["categorie"]);
-            }
-            categoryCombo.DataSource = categoryList;
-
-
-            adapter.SelectCommand = new SqlCommand("SELECT * FROM RESTRICTII_VARSTA", sqlConnection);
-            adapter.Fill(combosDs, "RESTRICTII_VARSTA");
-            List<string> ageRestrictionsList = new List<string>();
-            foreach (DataRow el in combosDs.Tables["RESTRICTII_VARSTA"].Rows)
-            {
-                ageRestrictionsList.Add(el["Rvid"] + " " + el["rating_varsta"]);
-            }
-            ageRatingCombo.DataSource = ageRestrictionsList;
+            childDataGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            childDataGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            childDataGrid.MultiSelect = false;
+            childDataGrid.RowHeadersVisible = false;
+            childDataGrid.AllowUserToResizeRows = false;
+            childDataGrid.ClearSelection();
         }
 
         private void InitializeData()
@@ -87,17 +56,10 @@ namespace SGBD_Jocuri_DB
             ds.Tables.Add("DEZVOLTATORI");
             ds.Tables.Add("JOCURI");
 
-/*            DataRelation dataRelation = new DataRelation(
-                "FK_JOCURI_Did",
-                ds.Tables["DEZVOLTATORI"].Columns["Did"],
-                ds.Tables["JOCURI"].Columns["Did"]
-            );
-            ds.Relations.Add(dataRelation);*/
-
             ReloadParentData();
             
-            devsDataGrid.DataSource = ds.Tables["DEZVOLTATORI"];
-            gamesDataGrid.DataSource = ds.Tables["JOCURI"];
+            parentDataGrid.DataSource = ds.Tables["DEZVOLTATORI"];
+            childDataGrid.DataSource = ds.Tables["JOCURI"];
         }
 
         private void ReloadParentData()
@@ -118,30 +80,30 @@ namespace SGBD_Jocuri_DB
             ReloadParentData();
         }
 
-        private void DevsDataGrid_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        private void ParentDataGrid_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-            int devId = (int) devsDataGrid.SelectedRows[0].Cells[0].Value;
-            devIdField.Text = devId.ToString();
-            ReloadChildData(devId);
+            int parentId = (int) parentDataGrid.SelectedRows[0].Cells[0].Value;
+            devIdField.Text = parentId.ToString();
+            ReloadChildData(parentId);
         }
-
-        private void ReloadChildData(int devId)
+        
+        private void ReloadChildData(int parentId)
         {
             adapter.SelectCommand = new SqlCommand("SELECT * FROM JOCURI WHERE Did=@devId", sqlConnection);
-            adapter.SelectCommand.Parameters.Add("@devId", SqlDbType.Int).Value = devId;
+            adapter.SelectCommand.Parameters.Add("@devId", SqlDbType.Int).Value = parentId;
             ds.Tables["JOCURI"].Clear();
             adapter.Fill(ds, "JOCURI");
         }
 
-        private void GamesDataGrid_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        private void ChildDataGrid_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-            string gameName = (string)gamesDataGrid.SelectedRows[0].Cells[1].Value;
-            string playerNum = (string)gamesDataGrid.SelectedRows[0].Cells[2].Value;
-            string status = (string)gamesDataGrid.SelectedRows[0].Cells[3].Value;
-            DateTime date = (DateTime)gamesDataGrid.SelectedRows[0].Cells[4].Value;
-            string category = gamesDataGrid.SelectedRows[0].Cells[6].Value.ToString();
-            string age = gamesDataGrid.SelectedRows[0].Cells[7].Value.ToString();
-            string did = gamesDataGrid.SelectedRows[0].Cells[5].Value.ToString();
+            string gameName = (string)childDataGrid.SelectedRows[0].Cells[1].Value;
+            string playerNum = (string)childDataGrid.SelectedRows[0].Cells[2].Value;
+            string status = (string)childDataGrid.SelectedRows[0].Cells[3].Value;
+            DateTime date = (DateTime)childDataGrid.SelectedRows[0].Cells[4].Value;
+            string category = childDataGrid.SelectedRows[0].Cells[6].Value.ToString();
+            string age = childDataGrid.SelectedRows[0].Cells[7].Value.ToString();
+            string did = childDataGrid.SelectedRows[0].Cells[5].Value.ToString();
 
             nameField.Text = gameName;
             playerNumField.Text = playerNum;
@@ -154,7 +116,7 @@ namespace SGBD_Jocuri_DB
 
         private void UpdateBtn_Click(object sender, EventArgs e)
         {
-            int jid = (int)gamesDataGrid.SelectedRows[0].Cells[0].Value;
+            int jid = (int)childDataGrid.SelectedRows[0].Cells[0].Value;
             string name = nameField.Text;
             string playerNum = playerNumField.Text;
             string status = statusCombo.Text;
@@ -188,7 +150,7 @@ namespace SGBD_Jocuri_DB
                 {
                     MessageBox.Show("Joc actualizat cu succes.");
                     ClearFields();
-                    ReloadChildData((int)devsDataGrid.SelectedRows[0].Cells[0].Value);
+                    ReloadChildData((int)parentDataGrid.SelectedRows[0].Cells[0].Value);
                 }
             } 
             catch (Exception ex)
@@ -196,7 +158,7 @@ namespace SGBD_Jocuri_DB
                 MessageBox.Show(ex.Message);
                 sqlConnection.Close();
             }
-}
+        }
 
         private void AddBtn_Click(object sender, EventArgs e)
         {
@@ -204,7 +166,7 @@ namespace SGBD_Jocuri_DB
             string playerNum = playerNumField.Text;
             string status = statusCombo.Text;
             DateTime date = datePicker.Value;
-            int did = (int)devsDataGrid.SelectedRows[0].Cells[0].Value;
+            int did = (int)parentDataGrid.SelectedRows[0].Cells[0].Value;
             int cid = int.Parse(categoryCombo.Text.Split(' ')[0]);
             int rvid = int.Parse(ageRatingCombo.Text.Split(' ')[0]);
 
@@ -228,7 +190,7 @@ namespace SGBD_Jocuri_DB
                 {
                     MessageBox.Show("Joc adaugat cu succes.");
                     ClearFields();
-                    ReloadChildData((int)devsDataGrid.SelectedRows[0].Cells[0].Value);
+                    ReloadChildData((int)parentDataGrid.SelectedRows[0].Cells[0].Value);
                 }
             } 
             catch (Exception ex) 
@@ -236,11 +198,11 @@ namespace SGBD_Jocuri_DB
                 MessageBox.Show(ex.Message);
                 sqlConnection.Close();
             }
-}
+        }
 
         private void DeleteBtn_Click(object sender, EventArgs e)
         {
-            int jid = (int)gamesDataGrid.SelectedRows[0].Cells[0].Value;
+            int jid = (int)childDataGrid.SelectedRows[0].Cells[0].Value;
 
             adapter.DeleteCommand = new SqlCommand("DELETE FROM JOCURI WHERE Jid=@jid", sqlConnection);
             
@@ -256,7 +218,7 @@ namespace SGBD_Jocuri_DB
                 {
                     MessageBox.Show("Joc sters cu succes.");
                     ClearFields();
-                    ReloadChildData((int)devsDataGrid.SelectedRows[0].Cells[0].Value);
+                    ReloadChildData((int)parentDataGrid.SelectedRows[0].Cells[0].Value);
                 }
             } 
             catch (Exception ex) 
@@ -273,8 +235,8 @@ namespace SGBD_Jocuri_DB
             statusCombo.Text = string.Empty;
             categoryCombo.Text = string.Empty;
             ageRatingCombo.Text = string.Empty;
-            if (devsDataGrid.SelectedRows.Count != 0)
-                devIdField.Text = devsDataGrid.SelectedRows[0].Cells[0].Value.ToString();
+            if (parentDataGrid.SelectedRows.Count != 0)
+                devIdField.Text = parentDataGrid.SelectedRows[0].Cells[0].Value.ToString();
         }
     }
 }
